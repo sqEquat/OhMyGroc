@@ -32,6 +32,11 @@ public class Client {
 	public Client() {
 	}
 	
+	public Client(String email, String username) {
+		this.email = email;
+		this.username = username;
+	}
+
 	public Client(String email, String username, List<String> shopLists) {
 		this.email = email;
 		this.username = username;
@@ -47,6 +52,7 @@ public class Client {
 	public Long getId() {
 		return id;
 	}
+
 	public void setId(Long id) {
 		this.id = id;
 	}
@@ -67,6 +73,11 @@ public class Client {
 	}
 	public void setShopLists(List<String> shopLists) {
 		this.shopList = shopLists;
+	}
+	
+	@Override
+	public String toString() {
+		return "Client [id=" + id + ", email=" + email + ", username=" + username + ", shopList=" + shopList + "]";
 	}
 
 }
