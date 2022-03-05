@@ -1,4 +1,4 @@
-package ru.treshchilin.OhMyGroc.User;
+package ru.treshchilin.OhMyGroc.Client;
 
 import java.util.List;
 
@@ -9,17 +9,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api/v1/user")
-public class UserController {
+public class ClientController {
 
-	private final UserService userService;
+	private final ClientService userService;
 	
 	@Autowired
-	public UserController(UserService userService) {
+	public ClientController(ClientService userService) {
 		this.userService = userService;
 	}
 	
 	@GetMapping
-	public List<User> getUsers() {
+	public List<Client> getUsers() {
 		return userService.getUsers();
 	}
 

@@ -1,24 +1,44 @@
-package ru.treshchilin.OhMyGroc.User;
+package ru.treshchilin.OhMyGroc.Client;
 
 import java.util.List;
 
-public class User {
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+
+@Entity
+@Table
+public class Client {
+	@Id
+	@SequenceGenerator(
+			name = "user_sequence",
+			sequenceName = "user_sequence",
+			allocationSize = 1)
+	@GeneratedValue(
+			strategy = GenerationType.SEQUENCE,
+			generator = "user_sequence"
+	)
 	private Long id;
 	private String email;
 	private String username;
+	@ElementCollection
 	private List<String> shopList;
 	
 	
-	public User() {
+	public Client() {
 	}
 	
-	public User(String email, String username, List<String> shopLists) {
+	public Client(String email, String username, List<String> shopLists) {
 		this.email = email;
 		this.username = username;
 		this.shopList = shopLists;
 	}
 
-	public User(Long id, String email, String username, List<String> shopLists) {
+	public Client(Long id, String email, String username, List<String> shopLists) {
 		this.id = id;
 		this.email = email;
 		this.username = username;
