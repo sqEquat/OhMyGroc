@@ -11,16 +11,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/v1/user")
 public class ClientController {
 
-	private final ClientService userService;
+	private final ClientService clientService;
 	
 	@Autowired
-	public ClientController(ClientService userService) {
-		this.userService = userService;
+	public ClientController(ClientService clientService) {
+		this.clientService = clientService;
 	}
 	
 	@GetMapping
-	public List<Client> getUsers() {
-		return userService.getUsers();
+	public List<Client> getClients() {
+		return clientService.getClients();
 	}
 
 }
