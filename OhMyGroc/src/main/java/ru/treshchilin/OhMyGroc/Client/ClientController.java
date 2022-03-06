@@ -35,6 +35,14 @@ public class ClientController {
 		clientService.addNewClient(client);
 	}
 	
+	@PutMapping("/{clientId}")
+	public void updateClient(
+			@PathVariable("clientId") Long clientId,
+			@RequestParam(required = false) String username	,
+			@RequestParam(required = false) String email) {
+		clientService.updateClient(clientId, username, email);
+	}
+	
 	@DeleteMapping("/{clientId}")
 	public void deleteClient(
 			@PathVariable("clientId") Long clientId) {
