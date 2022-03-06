@@ -3,10 +3,14 @@ package ru.treshchilin.OhMyGroc.Client;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -26,8 +30,15 @@ public class ClientController {
 	}
 	
 	@PostMapping
-	public void registerNewClient(@RequestBody Client client) {
+	public void registerNewClient(
+			@RequestBody Client client) {
 		clientService.addNewClient(client);
+	}
+	
+	@DeleteMapping("/{clientId}")
+	public void deleteClient(
+			@PathVariable("clientId") Long clientId) {
+		clientService.deleteClient(clientId);
 	}
 
 }

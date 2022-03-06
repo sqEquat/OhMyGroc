@@ -20,6 +20,19 @@ public class ClientService {
 	}
 
 	public void addNewClient(Client client) {
-		System.out.println(client);
+		List<Client> clientByEmail =  clientRepository.findByEmail(client.getEmail());
+		if (!clientByEmail.isEmpty()) {
+			throw new IllegalStateException("Email is already exists");
+		}
+		
+		clientRepository.save(client);
+	}
+
+	public void deleteClient(Long clientId) {
+		if (!clientRepository.existsById(clientId)) {
+			throw new IllegalStateException("Client with id " + clientId + " does not exists");
+		}
+		
+		clientRepository.deleteById(clientId);
 	}
 }
