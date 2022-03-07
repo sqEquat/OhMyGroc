@@ -8,6 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 
 @Entity
 @Table
@@ -17,7 +19,10 @@ public class Client {
 			strategy = GenerationType.IDENTITY
 	)
 	private Long id;
+	@NotBlank(message = "Email shouldn't be empty")
+	@Email
 	private String email;
+	@NotBlank(message = "Username shouldn't be empty")
 	private String username;
 	@ElementCollection
 	private List<String> shopList;
