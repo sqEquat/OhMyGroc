@@ -2,6 +2,8 @@ package ru.treshchilin.OhMyGroc.Client;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +33,7 @@ public class ClientController {
 	
 	@PostMapping
 	public void registerNewClient(
-			@RequestBody Client client) {
+			@Valid @RequestBody Client client) {
 		clientService.addNewClient(client);
 	}
 	
