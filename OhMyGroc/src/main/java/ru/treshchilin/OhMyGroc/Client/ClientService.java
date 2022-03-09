@@ -41,7 +41,6 @@ public class ClientService {
 
 	@Transactional
 	public void updateClient(Long clientId, String username, String email) {
-		// TODO Auto-generated method stub
 		Client client = clientRepository.findById(clientId)
 				.orElseThrow(() -> new IllegalStateException(
 				"Client with id " + clientId + " does not exists"));
