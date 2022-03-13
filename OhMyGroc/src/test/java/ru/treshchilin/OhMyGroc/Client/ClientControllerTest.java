@@ -12,8 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
 
 @ExtendWith(MockitoExtension.class)
 class ClientControllerTest {
@@ -23,9 +21,6 @@ class ClientControllerTest {
 	
 	@InjectMocks
 	private ClientController underTest;
-	
-	@Autowired
-	private MockMvc mockMvc;
 	
 	@Test
 	void testGetClients() {
