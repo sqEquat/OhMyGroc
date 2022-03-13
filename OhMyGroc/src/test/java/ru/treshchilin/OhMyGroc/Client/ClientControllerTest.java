@@ -1,21 +1,19 @@
 package ru.treshchilin.OhMyGroc.Client;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.web.servlet.MockMvc;
 
 @ExtendWith(MockitoExtension.class)
 class ClientControllerTest {
@@ -25,6 +23,9 @@ class ClientControllerTest {
 	
 	@InjectMocks
 	private ClientController underTest;
+	
+	@Autowired
+	private MockMvc mockMvc;
 	
 	@Test
 	void testGetClients() {
@@ -47,18 +48,6 @@ class ClientControllerTest {
 		underTest.registerNewClient(client);
 		
 		verify(clientService).addNewClient(client);
-	}
-	
-	@Test
-	@Disabled
-	void testRegisterNewClientIfEmailNotValid() {
-		Client client = new Client("test.com", "Test1");
-		
-		assertThrows(MethodArgumentNotValidException.class, () -> {
-			underTest.registerNewClient(client);
-		});
-		
-		verify(clientService, never()).addNewClient(client);
 	}
 
 	@Test
