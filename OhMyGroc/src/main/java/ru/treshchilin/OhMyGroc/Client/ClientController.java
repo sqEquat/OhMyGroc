@@ -3,8 +3,10 @@ package ru.treshchilin.OhMyGroc.Client;
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api/v1/client")
+@Validated
 public class ClientController {
 
 	private final ClientService clientService;
@@ -39,15 +42,15 @@ public class ClientController {
 	
 	@PutMapping("/{clientId}")
 	public void updateClient(
-			@PathVariable("clientId") Long clientId,
-			@RequestParam(required = false) String username	,
+			@PathVariable("clientId") @Min(1) Long clientId,
+			@RequestParam(required = false) String username,
 			@RequestParam(required = false) String email) {
 		clientService.updateClient(clientId, username, email);
 	}
 	
 	@DeleteMapping("/{clientId}")
 	public void deleteClient(
-			@PathVariable("clientId") Long clientId) {
+			@PathVariable("clientId") @Min(1) Long clientId) {
 		clientService.deleteClient(clientId);
 	}
 
