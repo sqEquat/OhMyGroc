@@ -1,6 +1,7 @@
 package ru.treshchilin.OhMyGroc.Controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,6 +38,17 @@ class ClientControllerTest {
 		
 		assertThat(gotClients).isEqualTo(clients);
 		verify(clientService).getClients();
+	}
+	
+	@Test
+	void getClientIfExists() {
+		Client client = new Client(1L, "test@test.com", "Test", Collections.emptyList());
+		when(clientService.getClient(client.getId())).thenReturn(client);
+		
+		Client gotClient = underTest.getClient(client.getId()).getBody();
+		
+		assertThat(gotClient).isEqualTo(client);
+		verify(clientService, atMostOnce()).getClient(client.getId());
 	}
 
 	@Test

@@ -42,6 +42,13 @@ public class ClientController {
 				.body(clientService.getClients());
 	}
 	
+	@GetMapping("/{id}")
+	public ResponseEntity<Client> getClient(@PathVariable("id") @Min(1) Long id) {
+		return ResponseEntity.status(HttpStatus.OK)
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(clientService.getClient(id));
+	}
+	
 	@PostMapping
 	public ResponseEntity<Client> registerNewClient(
 			@Valid @RequestBody Client client) {

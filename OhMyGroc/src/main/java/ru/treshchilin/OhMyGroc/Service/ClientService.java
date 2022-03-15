@@ -25,6 +25,10 @@ public class ClientService {
 		return clientRepository.findAll();
 	}
 
+	public Client getClient(Long id) {
+		return clientRepository.findById(id).orElseThrow();
+	}
+	
 	public Client addNewClient(Client client) {
 		List<Client> clientByEmail =  clientRepository.findByEmail(client.getEmail());
 		if (!clientByEmail.isEmpty()) {
@@ -64,4 +68,5 @@ public class ClientService {
 			client.setEmail(email);
 		}
 	}
+
 }
