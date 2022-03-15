@@ -2,6 +2,7 @@ package ru.treshchilin.OhMyGroc.Service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,6 +41,17 @@ class ClientServiceTest {
 		
 		assertThat(gotClients).isEqualTo(clients);
 		verify(clientRepository).findAll();
+	}
+	
+	@Test
+	void getClient() {
+		Client client = new Client(1L, "test@test.com", "Test", Collections.emptyList());
+		when(clientRepository.findById(client.getId())).thenReturn(Optional.of(client));
+		
+		Client gotClient = underTest.getClient(client.getId());
+		
+		assertThat(gotClient).isEqualTo(gotClient);
+		verify(clientRepository, atMostOnce()).getById(client.getId());
 	}
 
 	@Test
