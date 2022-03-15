@@ -66,9 +66,12 @@ public class ClientController {
 	}
 	
 	@DeleteMapping("/{clientId}")
-	public void deleteClient(
+	public ResponseEntity<String> deleteClient(
 			@PathVariable("clientId") @Min(1) Long clientId) {
 		clientService.deleteClient(clientId);
+		return ResponseEntity.status(HttpStatus.OK)
+				.contentType(MediaType.APPLICATION_JSON)
+				.body("Client with id: " + clientId + " was deleted");
 	}
 
 }

@@ -47,7 +47,7 @@ public class ClientService {
 	}
 
 	@Transactional
-	public void updateClient(Long clientId, String username, String email) {
+	public Client updateClient(Long clientId, String username, String email) {
 		Client client = clientRepository.findById(clientId)
 				.orElseThrow(() -> new IllegalStateException(
 				"Client with id " + clientId + " does not exists"));
@@ -67,6 +67,8 @@ public class ClientService {
 			
 			client.setEmail(email);
 		}
+		
+		return client;
 	}
 
 }
