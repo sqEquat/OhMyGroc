@@ -43,9 +43,11 @@ public class ClientController {
 	}
 	
 	@PostMapping
-	public void registerNewClient(
+	public ResponseEntity<Client> registerNewClient(
 			@Valid @RequestBody Client client) {
-		clientService.addNewClient(client);
+		return ResponseEntity.status(HttpStatus.CREATED)
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(clientService.addNewClient(client));
 	}
 	
 	@PutMapping("/{clientId}")
