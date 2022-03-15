@@ -33,7 +33,7 @@ class ClientControllerTest {
 				new Client(3L, "test3@test.com", "Test3", Collections.emptyList()));
 		when(clientService.getClients()).thenReturn(clients);
 		
-		List<Client> gotClients = underTest.getClients();
+		List<Client> gotClients = underTest.getClients().getBody();
 		
 		assertThat(gotClients).isEqualTo(clients);
 		verify(clientService).getClients();
