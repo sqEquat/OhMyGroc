@@ -1,4 +1,4 @@
-package ru.treshchilin.OhMyGroc.Client;
+package ru.treshchilin.OhMyGroc.Controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -29,6 +29,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.util.NestedServletException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ru.treshchilin.OhMyGroc.Model.Client;
+import ru.treshchilin.OhMyGroc.Service.ClientService;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = ClientController.class)
@@ -118,12 +121,4 @@ class ClientControllerMvcTest {
 		});
 		verify(clientService, never()).updateClient(any(), any(), any());
 	}
-	
-//	@Test
-//	void updateClient() {
-//		Client client = new Client(1L, "test1@test.com", "Test1", Collections.emptyList());
-//		
-//		
-//	}
-
 }

@@ -1,4 +1,4 @@
-package ru.treshchilin.OhMyGroc.Client;
+package ru.treshchilin.OhMyGroc.Controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -12,6 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import ru.treshchilin.OhMyGroc.Model.Client;
+import ru.treshchilin.OhMyGroc.Service.ClientService;
 
 @ExtendWith(MockitoExtension.class)
 class ClientControllerTest {

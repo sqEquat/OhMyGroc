@@ -1,4 +1,4 @@
-package ru.treshchilin.OhMyGroc.Client;
+package ru.treshchilin.OhMyGroc.Service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -16,6 +16,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import ru.treshchilin.OhMyGroc.Model.Client;
+import ru.treshchilin.OhMyGroc.Repo.ClientRepository;
 
 @ExtendWith(MockitoExtension.class)
 class ClientServiceTest {
