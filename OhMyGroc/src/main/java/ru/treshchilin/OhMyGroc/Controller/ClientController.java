@@ -43,7 +43,8 @@ public class ClientController {
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Client> getClient(@PathVariable("id") @Min(1) Long id) {
+	public ResponseEntity<Client> getClient(
+			@PathVariable("id") @Min(1) Long id) {
 		return ResponseEntity.status(HttpStatus.OK)
 				.contentType(MediaType.APPLICATION_JSON)
 				.body(clientService.getClient(id));
@@ -58,11 +59,13 @@ public class ClientController {
 	}
 	
 	@PutMapping("/{clientId}")
-	public void updateClient(
+	public ResponseEntity<Client> updateClient(
 			@PathVariable("clientId") @Min(1) Long clientId,
 			@RequestParam(required = false) String username,
-			@RequestParam(required = false) String email) {
-		clientService.updateClient(clientId, username, email);
+			@RequestParam(required = false) String email) {		
+		return ResponseEntity.status(HttpStatus.OK)
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(clientService.updateClient(clientId, username, email));
 	}
 	
 	@DeleteMapping("/{clientId}")
