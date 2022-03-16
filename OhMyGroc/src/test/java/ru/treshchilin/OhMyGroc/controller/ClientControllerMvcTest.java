@@ -112,13 +112,14 @@ class ClientControllerMvcTest {
 	}
 	
 	@Test
-	void testUpdateClientWithNegativeId() throws Exception {
+	void testUpdateClientWithZeroId() throws Exception {
 		assertThrows(NestedServletException.class, () -> {
 		mockMvc.perform(put("/api/v1/client/{clientId}", 0)
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isBadRequest())
 				.andReturn();
 		});
+		
 		verify(clientService, never()).updateClient(any(), any(), any());
 	}
 }
