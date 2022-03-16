@@ -7,8 +7,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import ru.treshchilin.OhMyGroc.Model.Client;
-import ru.treshchilin.OhMyGroc.Repo.ClientRepository;
+import ru.treshchilin.OhMyGroc.model.Client;
+import ru.treshchilin.OhMyGroc.repo.ClientRepository;
 
 @SpringBootApplication
 public class OhMyGrocApplication {

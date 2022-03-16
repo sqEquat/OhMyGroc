@@ -1,4 +1,4 @@
-package ru.treshchilin.OhMyGroc.Repo;
+package ru.treshchilin.OhMyGroc.repo;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import ru.treshchilin.OhMyGroc.Model.Client;
+import ru.treshchilin.OhMyGroc.model.Client;
 
 @Repository
 public interface ClientRepository extends JpaRepository<Client, Long>{

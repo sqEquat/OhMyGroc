@@ -1,4 +1,4 @@
-package ru.treshchilin.OhMyGroc.Controller;
+package ru.treshchilin.OhMyGroc.controller;
 
 import java.util.List;
 
@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import ru.treshchilin.OhMyGroc.Model.Client;
-import ru.treshchilin.OhMyGroc.Service.ClientService;
+import ru.treshchilin.OhMyGroc.model.Client;
+import ru.treshchilin.OhMyGroc.service.ClientService;
 
 @RestController
 @RequestMapping("api/v1/client")
