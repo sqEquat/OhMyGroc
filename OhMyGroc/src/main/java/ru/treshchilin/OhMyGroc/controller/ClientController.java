@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ru.treshchilin.OhMyGroc.model.Client;
+import ru.treshchilin.OhMyGroc.model.ShoppingList;
 import ru.treshchilin.OhMyGroc.service.ClientService;
 
 @RestController
@@ -56,6 +57,16 @@ public class ClientController {
 		return ResponseEntity.status(HttpStatus.CREATED)
 				.contentType(MediaType.APPLICATION_JSON)
 				.body(clientService.addNewClient(client));
+	}
+	
+	@PostMapping("/{clientId}")
+	public ResponseEntity<Client> addNewShoppingList(
+			@PathVariable("clientId") @Min(1) Long clientId,
+			@Valid @RequestBody ShoppingList shoppingList) {
+		clientService.addNewClientShoppingList(clientId, shoppingList);
+		return ResponseEntity.status(HttpStatus.OK)
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(clientService.getClient(clientId));
 	}
 	
 	@PutMapping("/{clientId}")

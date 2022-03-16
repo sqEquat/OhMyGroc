@@ -1,5 +1,6 @@
 package ru.treshchilin.OhMyGroc.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ru.treshchilin.OhMyGroc.model.Client;
+import ru.treshchilin.OhMyGroc.model.ShoppingList;
 import ru.treshchilin.OhMyGroc.repo.ClientRepository;
 
 @Service
@@ -67,6 +69,18 @@ public class ClientService {
 			
 			client.setEmail(email);
 		}
+		
+		return client;
+	}
+
+	@Transactional
+	public Client addNewClientShoppingList(Long clientId, ShoppingList shoppingList) {
+		Client client = clientRepository.findById(clientId).orElseThrow();
+		
+		shoppingList.setDateCreated(LocalDateTime.now());
+		shoppingList.setClient(client);
+		
+		client.addShoppingList(shoppingList);
 		
 		return client;
 	}
