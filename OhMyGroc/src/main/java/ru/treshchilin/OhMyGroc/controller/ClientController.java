@@ -42,9 +42,9 @@ public class ClientController {
 				.body(clientService.getClients());
 	}
 	
-	@GetMapping("/{id}")
+	@GetMapping("/{clientId}")
 	public ResponseEntity<Client> getClient(
-			@PathVariable("id") @Min(1) Long id) {
+			@PathVariable("clientId") @Min(1) Long id) {
 		return ResponseEntity.status(HttpStatus.OK)
 				.contentType(MediaType.APPLICATION_JSON)
 				.body(clientService.getClient(id));
