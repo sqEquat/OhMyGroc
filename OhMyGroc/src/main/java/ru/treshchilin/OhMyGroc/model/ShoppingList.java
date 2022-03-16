@@ -1,15 +1,20 @@
 package ru.treshchilin.OhMyGroc.model;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 @Entity(name = "ShoppingList")
 @Table(name = "shopping_list")
@@ -18,8 +23,16 @@ public class ShoppingList {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	@NotNull
-	private Date dateCreated;
+	
+	@JsonProperty(access = Access.WRITE_ONLY)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(
+			name = "client_id",
+			nullable = false)
+	private Client client;
+	
+	private LocalDateTime dateCreated;
+	
 	@ElementCollection
 	private List<String> items;
 	
@@ -28,7 +41,7 @@ public class ShoppingList {
 		super();
 	}
 
-	public ShoppingList(Long id, Date dateCreated, List<String> items) {
+	public ShoppingList(Long id, LocalDateTime dateCreated, List<String> items) {
 		super();
 		this.id = id;
 		this.dateCreated = dateCreated;
@@ -42,12 +55,20 @@ public class ShoppingList {
 	public void setId(Long id) {
 		this.id = id;
 	}
+	
+	public Client getClient() {
+		return client;
+	}
 
-	public Date getDateCreated() {
+	public void setClient(Client client) {
+		this.client = client;
+	}
+
+	public LocalDateTime getDateCreated() {
 		return dateCreated;
 	}
 
-	public void setDateCreated(Date dateCreated) {
+	public void setDateCreated(LocalDateTime dateCreated) {
 		this.dateCreated = dateCreated;
 	}
 
