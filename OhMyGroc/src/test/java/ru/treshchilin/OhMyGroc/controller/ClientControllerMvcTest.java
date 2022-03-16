@@ -16,7 +16,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -36,7 +35,6 @@ import ru.treshchilin.OhMyGroc.service.ClientService;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = ClientController.class)
-@Disabled
 class ClientControllerMvcTest {
 	
 	@Autowired
@@ -75,7 +73,7 @@ class ClientControllerMvcTest {
 		mockMvc.perform(post("/api/v1/client")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(clinet)))
-				.andExpect(status().isOk());
+				.andExpect(status().isCreated());
 		
 		ArgumentCaptor<Client> captor = ArgumentCaptor.forClass(Client.class);
 		verify(clientService, atMostOnce()).addNewClient(captor.capture());
