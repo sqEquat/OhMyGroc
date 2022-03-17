@@ -85,4 +85,36 @@ public class ClientService {
 		return client;
 	}
 
+	@Transactional
+	public ShoppingList updateShoppingList(Long clientId, Long listId, ShoppingList shoppingList) {
+		ShoppingList listToUpdate = clientRepository.getById(clientId).getShopLists().stream()
+				.filter(id -> id.getId()
+				.equals(listId))
+				.findFirst()
+				.orElseThrow();
+		
+		if (listToUpdate != null)
+			listToUpdate.setItems(shoppingList.getItems());
+		
+		return listToUpdate;
+	}
+
+	@Transactional
+	public String deleteShoppingList(Long clientId, Long listId) {
+		Client client = clientRepository.findById(clientId).orElseThrow();
+		
+		if (client.getShopLists().removeIf(list -> list.getId().equals(listId)))
+			return "Shopping list with id: " + listId + " was deleted";
+		else
+			return "There is no shopping list with id: " + listId;
+	}
+
+	public ShoppingList getShoppingListById(Long clientId, Long listId) {
+		return clientRepository.findById(clientId).orElseThrow().getShopLists().stream()
+				.filter(list -> list.getId()
+				.equals(listId))
+				.findAny()
+				.orElseThrow();
+	}
+
 }

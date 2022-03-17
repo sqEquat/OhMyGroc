@@ -36,6 +36,8 @@ public class ClientController {
 		this.clientService = clientService;
 	}
 	
+	// Methods for manipulating clients
+	
 	@GetMapping
 	public ResponseEntity<List<Client>> getClients() {
 		return ResponseEntity.status(HttpStatus.OK)
@@ -59,16 +61,6 @@ public class ClientController {
 				.body(clientService.addNewClient(client));
 	}
 	
-	@PostMapping("/{clientId}")
-	public ResponseEntity<Client> addNewShoppingList(
-			@PathVariable("clientId") @Min(1) Long clientId,
-			@Valid @RequestBody ShoppingList shoppingList) {
-		clientService.addNewClientShoppingList(clientId, shoppingList);
-		return ResponseEntity.status(HttpStatus.OK)
-				.contentType(MediaType.APPLICATION_JSON)
-				.body(clientService.getClient(clientId));
-	}
-	
 	@PutMapping("/{clientId}")
 	public ResponseEntity<Client> updateClient(
 			@PathVariable("clientId") @Min(1) Long clientId,
@@ -86,6 +78,46 @@ public class ClientController {
 		return ResponseEntity.status(HttpStatus.OK)
 				.contentType(MediaType.APPLICATION_JSON)
 				.body("Client with id: " + clientId + " was deleted");
+	}
+	
+	
+	// Methods for manipulating clients shopping lists
+	
+	@GetMapping("/{clientId}/{listId}")
+	public ResponseEntity<ShoppingList> getSpecificList(
+			@PathVariable("clientId") @Min(1) Long clientId,
+			@PathVariable("listId") @Min(1) Long listId) {
+		return ResponseEntity.status(HttpStatus.OK)
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(clientService.getShoppingListById(clientId, listId));
+	}
+	
+	@PostMapping("/{clientId}")
+	public ResponseEntity<Client> addNewShoppingList(
+			@PathVariable("clientId") @Min(1) Long clientId,
+			@Valid @RequestBody ShoppingList shoppingList) {
+		return ResponseEntity.status(HttpStatus.OK)
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(clientService.addNewClientShoppingList(clientId, shoppingList));
+	}
+	
+	@PutMapping("/{clientId}/{listId}")
+	public ResponseEntity<ShoppingList> updateShoppingList(
+			@PathVariable("clientId") @Min(1) Long clientId,
+			@PathVariable("listId") @Min(1) Long listId,
+			@RequestBody ShoppingList shoppingList) {
+		return ResponseEntity.status(HttpStatus.OK)
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(clientService.updateShoppingList(clientId, listId, shoppingList));
+	}
+	
+	@DeleteMapping("/{clientId}/{listId}")
+	public ResponseEntity<String> deleteShoppingList(
+			@PathVariable("clientId") @Min(1) Long clientId,
+			@PathVariable("listId") @Min(1) Long listId) {
+		return ResponseEntity.status(HttpStatus.OK)
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(clientService.deleteShoppingList(clientId, listId));
 	}
 
 }
