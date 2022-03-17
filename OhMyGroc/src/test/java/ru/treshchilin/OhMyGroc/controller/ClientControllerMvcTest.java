@@ -3,6 +3,7 @@ package ru.treshchilin.OhMyGroc.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -31,6 +32,7 @@ import org.springframework.web.util.NestedServletException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ru.treshchilin.OhMyGroc.model.Client;
+import ru.treshchilin.OhMyGroc.model.ShoppingList;
 import ru.treshchilin.OhMyGroc.service.ClientService;
 
 @ExtendWith(SpringExtension.class)
@@ -121,5 +123,26 @@ class ClientControllerMvcTest {
 		});
 		
 		verify(clientService, never()).updateClient(any(), any(), any());
+	}
+	
+	@Test
+	void addNewShoppingList() throws Exception {
+		ShoppingList shoppingList = new ShoppingList(null, null, List.of("Test1", "Test2", "Test3"));
+		Client client = new Client(1L, "test@test.com", "Test", List.of(shoppingList));
+		when(clientService.addNewClientShoppingList(eq(client.getId()), any())).thenReturn(client);
+		
+		MvcResult mvcResult = mockMvc.perform(post("/api/v1/client/1")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(shoppingList)))
+				.andExpect(status().isOk())
+				.andReturn();
+		
+		ArgumentCaptor<Long> clientIdCaptor = ArgumentCaptor.forClass(Long.class);
+		ArgumentCaptor<ShoppingList> shoppingListCaptor = ArgumentCaptor.forClass(ShoppingList.class);
+		String result = mvcResult.getResponse().getContentAsString();
+		verify(clientService, atMostOnce()).addNewClientShoppingList(clientIdCaptor.capture(), shoppingListCaptor.capture());
+		assertThat(clientIdCaptor.getValue()).isEqualTo(client.getId());
+		assertThat(shoppingListCaptor.getValue().getItems()).containsAll(shoppingList.getItems());
+		assertThat(result).isEqualToIgnoringWhitespace(mapper.writeValueAsString(client));
 	}
 }
