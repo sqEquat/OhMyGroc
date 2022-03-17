@@ -7,6 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.treshchilin.OhMyGroc.model.Client;
+import ru.treshchilin.OhMyGroc.model.ShoppingList;
 import ru.treshchilin.OhMyGroc.repo.ClientRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -144,6 +146,20 @@ class ClientServiceTest {
 		underTest.updateClient(client.getId(), null, newEmail);
 		
 		assertThat(client.getEmail()).isEqualTo(newEmail);
+	}
+	
+	@Test
+	void addNewClientShoppingList() {
+		Client client = new Client(1L, "test@test.com", "Test1", new ArrayList<ShoppingList>());
+		ShoppingList shoppingList = new ShoppingList(null, null, List.of("Meat", "Milk", "Water", "Bread"));
+		when(clientRepository.findById(client.getId())).thenReturn(Optional.of(client));
+		
+		Client returrnedClient = underTest.addNewClientShoppingList(client.getId(), shoppingList);
+		
+		assertThat(shoppingList.getDateCreated()).isNotNull();
+		assertThat(shoppingList.getClient()).isEqualTo(client);
+		assertThat(returrnedClient).isEqualTo(client);
+		assertThat(client.getShopLists()).contains(shoppingList);
 	}
 
 }
