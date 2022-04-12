@@ -3,6 +3,7 @@ package ru.treshchilin.OhMyGroc.model;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -31,6 +32,7 @@ public class ShoppingList {
 			nullable = false)
 	private Client client;
 	
+	@Column(name = "date_created")
 	private LocalDateTime dateCreated;
 	
 	@ElementCollection
@@ -38,11 +40,9 @@ public class ShoppingList {
 	
 	
 	public ShoppingList() {
-		super();
 	}
 
 	public ShoppingList(Long id, LocalDateTime dateCreated, List<String> items) {
-		super();
 		this.id = id;
 		this.dateCreated = dateCreated;
 		this.items = items;
