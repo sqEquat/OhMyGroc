@@ -5,10 +5,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.TreeSet;
 
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import ru.treshchilin.OhMyGroc.model.Client;
@@ -18,7 +24,7 @@ import ru.treshchilin.OhMyGroc.repo.ClientRepository;
 import ru.treshchilin.OhMyGroc.repo.RoleRepository;
 
 @Service
-public class ClientService {
+public class ClientService implements UserDetailsService{
 	
 	private final ClientRepository clientRepository;
 	private final RoleRepository roleRepository;
@@ -186,6 +192,23 @@ public class ClientService {
 		client.getRoles().removeIf(role -> role.getId().equals(roleId));
 		
 		return client;
+	}
+
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		Optional<Client> clientOp = clientRepository.findByUsername(username);
+		
+		if (clientOp.isEmpty()) {
+			throw new UsernameNotFoundException("Username " + username + " not found!");
+		}
+		
+		Client client = clientOp.get();
+		Collection<SimpleGrantedAuthority> authorities = new TreeSet<>();
+		client.getRoles().forEach(role -> {
+			authorities.add(new SimpleGrantedAuthority(role.getName()));
+		});
+		
+		return new User(client.getUsername(), client.getPassword(), authorities);
 	}
 
 }
