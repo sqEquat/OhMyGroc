@@ -1,11 +1,11 @@
 package ru.treshchilin.OhMyGroc.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.TreeSet;
 
 import javax.transaction.Transactional;
 
@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import ru.treshchilin.OhMyGroc.model.Client;
@@ -28,12 +29,15 @@ public class ClientService implements UserDetailsService{
 	
 	private final ClientRepository clientRepository;
 	private final RoleRepository roleRepository;
+	
+	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
-	public ClientService(ClientRepository clientRepository, RoleRepository roleRepository) {
+	public ClientService(ClientRepository clientRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
 		super();
 		this.clientRepository = clientRepository;
 		this.roleRepository = roleRepository;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	public List<Client> getClients() {
@@ -53,6 +57,7 @@ public class ClientService implements UserDetailsService{
 			throw new IllegalStateException("Email is already taken");
 		}
 		
+		client.setPassword(passwordEncoder.encode(client.getPassword()));
 		return clientRepository.save(client);
 	}
 
@@ -203,7 +208,7 @@ public class ClientService implements UserDetailsService{
 		}
 		
 		Client client = clientOp.get();
-		Collection<SimpleGrantedAuthority> authorities = new TreeSet<>();
+		Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
 		client.getRoles().forEach(role -> {
 			authorities.add(new SimpleGrantedAuthority(role.getName()));
 		});
