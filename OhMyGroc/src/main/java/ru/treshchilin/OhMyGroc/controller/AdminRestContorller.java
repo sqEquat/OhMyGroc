@@ -33,12 +33,18 @@ public class AdminRestContorller {
 	// Clients
 	
 	@GetMapping("/clients")
-	public ResponseEntity<List<Client>> getClients(){
+	public ResponseEntity<List<Client>> getClients() {
 		return ResponseEntity.ok().body(clientService.getClients());
 	}
 	
+	@GetMapping("/clients/{clientId}")
+	public ResponseEntity<Client> getClient(
+			@PathVariable(name = "clietnId", required = true) Long clientId) {
+		return ResponseEntity.ok().body(clientService.getClient(clientId));
+	}
+	
 	@PostMapping("/clients")
-	public ResponseEntity<Client> saveClient(@RequestBody Client client){
+	public ResponseEntity<Client> saveClient(@RequestBody Client client) {
 		URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v2/admin/clients").toUriString());
 		return ResponseEntity.created(uri).body(clientService.addNewClient(client));
 	}
