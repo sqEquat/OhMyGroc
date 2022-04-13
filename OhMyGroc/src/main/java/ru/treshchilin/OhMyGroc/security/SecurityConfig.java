@@ -3,6 +3,7 @@ package ru.treshchilin.OhMyGroc.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,11 +36,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable()
-			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean());
+		customAuthenticationFilter.setFilterProcessesUrl("/api/v2/login");
 		
-		http.authorizeRequests().anyRequest().permitAll();
-		http.addFilter(new CustomAuthenticationFilter(authenticationManagerBean()));
+		http.csrf().disable();
+		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		
+		http.authorizeHttpRequests().antMatchers("/api/v2/login/**").permitAll();
+		http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/v2/admin/**").hasAuthority("ROLE_CLIENT");
+		http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/v2/admin/**").hasAuthority("ROLE_ADMIN");
+		http.authorizeRequests().anyRequest().authenticated();
+		http.addFilter(customAuthenticationFilter);
 	}
 	
 	@Bean
