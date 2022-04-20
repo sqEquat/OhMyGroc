@@ -96,17 +96,23 @@ public class ClientService implements UserDetailsService{
 		
 		return client;
 	}
-
-	@Transactional
-	public Client addNewClientShoppingList(Long clientId, ShoppingList shoppingList) {
-		Client client = clientRepository.findById(clientId).orElseThrow();
-		
-		shoppingList.setDateCreated(LocalDateTime.now());
-		shoppingList.setClient(client);
-		
-		client.addShoppingList(shoppingList);
-		
-		return client;
+	
+//	Shopping lists
+	
+	public List<ShoppingList> getShoppingLists(String username) {
+		return clientRepository.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found!"))
+				.getShopLists();
+	}
+	
+	public ShoppingList getShoppingListById(String username, Long listId) {
+		return clientRepository.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found!"))
+				.getShopLists().stream()
+				.filter(list -> list.getId()
+				.equals(listId))
+				.findAny()
+				.orElseThrow(() -> new IllegalStateException("List with id=" + listId + " not found!"));
 	}
 
 	@Transactional
@@ -120,20 +126,6 @@ public class ClientService implements UserDetailsService{
 		client.addShoppingList(shoppingList);
 		
 		return shoppingList;
-	}
-
-	@Transactional
-	public ShoppingList updateShoppingList(Long clientId, Long listId, ShoppingList shoppingList) {
-		ShoppingList listToUpdate = clientRepository.getById(clientId).getShopLists().stream()
-				.filter(id -> id.getId()
-				.equals(listId))
-				.findFirst()
-				.orElseThrow();
-		
-		if (listToUpdate != null)
-			listToUpdate.setItems(shoppingList.getItems());
-		
-		return listToUpdate;
 	}
 	
 	@Transactional
@@ -150,16 +142,6 @@ public class ClientService implements UserDetailsService{
 		
 		return listToUpdate;
 	}
-
-	@Transactional
-	public String deleteShoppingList(Long clientId, Long listId) {
-		Client client = clientRepository.findById(clientId).orElseThrow();
-		
-		if (client.getShopLists().removeIf(list -> list.getId().equals(listId)))
-			return "Shopping list with id: " + listId + " was deleted";
-		else
-			return "There is no shopping list with id: " + listId;
-	}
 	
 	@Transactional
 	public String deleteShoppingList(String username, Long listId) {
@@ -170,30 +152,8 @@ public class ClientService implements UserDetailsService{
 		else
 			return "There is no shopping list with id: " + listId;
 	}
-
-	public List<ShoppingList> getShoppingLists(String username) {
-		return clientRepository.findByUsername(username)
-				.orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found!"))
-				.getShopLists();
-	}
 	
-	public ShoppingList getShoppingListById(Long clientId, Long listId) {
-		return clientRepository.findById(clientId).orElseThrow().getShopLists().stream()
-				.filter(list -> list.getId()
-				.equals(listId))
-				.findAny()
-				.orElseThrow();
-	}
-	
-	public ShoppingList getShoppingListById(String username, Long listId) {
-		return clientRepository.findByUsername(username)
-				.orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found!"))
-				.getShopLists().stream()
-				.filter(list -> list.getId()
-				.equals(listId))
-				.findAny()
-				.orElseThrow(() -> new IllegalStateException("List with id=" + listId + " not found!"));
-	}
+//	Roles
 	
 	public List<Role> getRoles() {
 		return roleRepository.findAll();

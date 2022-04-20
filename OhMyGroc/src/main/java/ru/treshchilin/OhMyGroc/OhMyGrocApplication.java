@@ -4,8 +4,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import ru.treshchilin.OhMyGroc.model.Client;
 import ru.treshchilin.OhMyGroc.model.Role;
@@ -30,10 +28,5 @@ public class OhMyGrocApplication {
 			clientService.addRoleToClient(1L, 1L);
 			clientService.addRoleToClient(2L, 2L);
 		};
-	}
-	
-	@Bean
-	PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
 	}
 }
