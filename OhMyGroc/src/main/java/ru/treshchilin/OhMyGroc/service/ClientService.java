@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -17,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ru.treshchilin.OhMyGroc.model.Client;
 import ru.treshchilin.OhMyGroc.model.Role;
@@ -46,6 +45,10 @@ public class ClientService implements UserDetailsService{
 
 	public Client getClient(Long id) {
 		return clientRepository.findById(id).orElseThrow();
+	}
+	
+	public Client getClient(String username) {
+		return clientRepository.findByUsername(username).orElseThrow();
 	}
 	
 	public Client addNewClient(Client client) {
@@ -107,6 +110,19 @@ public class ClientService implements UserDetailsService{
 	}
 
 	@Transactional
+	public ShoppingList addNewShoppingList(String username, ShoppingList shoppingList) {
+		Client client = clientRepository.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found!"));
+		
+		shoppingList.setDateCreated(LocalDateTime.now());
+		shoppingList.setClient(client);
+		
+		client.addShoppingList(shoppingList);
+		
+		return shoppingList;
+	}
+
+	@Transactional
 	public ShoppingList updateShoppingList(Long clientId, Long listId, ShoppingList shoppingList) {
 		ShoppingList listToUpdate = clientRepository.getById(clientId).getShopLists().stream()
 				.filter(id -> id.getId()
@@ -116,6 +132,21 @@ public class ClientService implements UserDetailsService{
 		
 		if (listToUpdate != null)
 			listToUpdate.setItems(shoppingList.getItems());
+		
+		return listToUpdate;
+	}
+	
+	@Transactional
+	public ShoppingList updateShoppingList(String username, Long listId, ShoppingList shoppingList) {
+		ShoppingList listToUpdate = clientRepository.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found!"))
+				.getShopLists().stream()
+				.filter(id -> id.getId()
+				.equals(listId))
+				.findFirst()
+				.orElseThrow(() -> new IllegalStateException("List with id=" + listId + " not found!"));
+		
+		listToUpdate.setItems(shoppingList.getItems());
 		
 		return listToUpdate;
 	}
@@ -129,13 +160,39 @@ public class ClientService implements UserDetailsService{
 		else
 			return "There is no shopping list with id: " + listId;
 	}
+	
+	@Transactional
+	public String deleteShoppingList(String username, Long listId) {
+		Client client = clientRepository.findByUsername(username).orElseThrow();
+		
+		if (client.getShopLists().removeIf(list -> list.getId().equals(listId)))
+			return "Shopping list with id: " + listId + " was deleted";
+		else
+			return "There is no shopping list with id: " + listId;
+	}
 
+	public List<ShoppingList> getShoppingLists(String username) {
+		return clientRepository.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found!"))
+				.getShopLists();
+	}
+	
 	public ShoppingList getShoppingListById(Long clientId, Long listId) {
 		return clientRepository.findById(clientId).orElseThrow().getShopLists().stream()
 				.filter(list -> list.getId()
 				.equals(listId))
 				.findAny()
 				.orElseThrow();
+	}
+	
+	public ShoppingList getShoppingListById(String username, Long listId) {
+		return clientRepository.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found!"))
+				.getShopLists().stream()
+				.filter(list -> list.getId()
+				.equals(listId))
+				.findAny()
+				.orElseThrow(() -> new IllegalStateException("List with id=" + listId + " not found!"));
 	}
 	
 	public List<Role> getRoles() {
