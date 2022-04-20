@@ -3,7 +3,6 @@ package ru.treshchilin.OhMyGroc.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,8 +12,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import ru.treshchilin.OhMyGroc.security.filter.CustomAuthenticationFilter;
+import ru.treshchilin.OhMyGroc.security.filter.CustomAuthorizationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -43,10 +44,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		
 		http.authorizeHttpRequests().antMatchers("/api/v2/login/**").permitAll();
-		http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/v2/admin/**").hasAuthority("ROLE_CLIENT");
-		http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/v2/admin/**").hasAuthority("ROLE_ADMIN");
+		http.authorizeRequests().antMatchers("/api/v2/client/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_CLIENT");
+		http.authorizeRequests().antMatchers("/api/v2/admin/**").hasAuthority("ROLE_ADMIN");
 		http.authorizeRequests().anyRequest().authenticated();
+		
 		http.addFilter(customAuthenticationFilter);
+		http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
 	
 	@Bean
