@@ -43,12 +43,11 @@ public class AdminRestContorller {
 		return ResponseEntity.ok().body(clientService.getClient(clientId));
 	}
 	
-//	TODO: сделай шобы пароль приходил через дто регистрации
-	@PostMapping("/clients")
-	public ResponseEntity<Client> saveClient(@RequestBody Client client) {
-		URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v2/admin/clients").toUriString());
-		return ResponseEntity.created(uri).body(clientService.addNewClient(client));
-	}
+//	@PostMapping("/clients")
+//	public ResponseEntity<Client> saveClient(@RequestBody Client client) {
+//		URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v2/admin/clients").toUriString());
+//		return ResponseEntity.created(uri).body(clientService.addNewClient(client));
+//	}
 	
 	@PutMapping("/clients/{clientId}/roles/add/{roleId}")
 	public ResponseEntity<Client> addRoleToClient(
