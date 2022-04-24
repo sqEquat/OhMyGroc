@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ru.treshchilin.OhMyGroc.dto.ClientRegisterDto;
 import ru.treshchilin.OhMyGroc.model.Client;
 import ru.treshchilin.OhMyGroc.model.Role;
 import ru.treshchilin.OhMyGroc.model.ShoppingList;
@@ -62,6 +63,25 @@ public class ClientService implements UserDetailsService{
 		
 		client.setPassword(passwordEncoder.encode(client.getPassword()));
 		return clientRepository.save(client);
+	}
+	
+	public Client addNewClient(ClientRegisterDto clientRegisterDto) {
+		if (clientRepository.findByUsername(clientRegisterDto.getUsername()).isPresent()) {
+			throw new IllegalStateException("Username is already taken");
+		}
+		
+		if (clientRepository.findByEmail(clientRegisterDto.getEmail()).isPresent()) {
+			throw new IllegalStateException("Email is already taken");
+		}
+		
+		Client registrationClient = new Client(clientRegisterDto.getEmail(), 
+				clientRegisterDto.getUsername(), 
+				passwordEncoder.encode(clientRegisterDto.getPassword()));
+		
+		registrationClient.getRoles().add(roleRepository.findByName("ROLE_CLIENT")
+				.orElseThrow(() -> new IllegalStateException("There is no role: ROLE_CLIENT")));
+		
+		return clientRepository.save(registrationClient);
 	}
 
 	public void deleteClient(Long clientId) {
