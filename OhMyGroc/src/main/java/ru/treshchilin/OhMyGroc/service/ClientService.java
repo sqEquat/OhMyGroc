@@ -39,30 +39,26 @@ public class ClientService implements UserDetailsService{
 		this.roleRepository = roleRepository;
 		this.passwordEncoder = passwordEncoder;
 	}
-
-	public List<Client> getClients() {
-		return clientRepository.findAll();
-	}
-
-	public Client getClient(Long id) {
-		return clientRepository.findById(id).orElseThrow();
+	
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		Optional<Client> clientOp = clientRepository.findByUsername(username);
+		
+		if (clientOp.isEmpty()) {
+			throw new UsernameNotFoundException("Username " + username + " not found!");
+		}
+		
+		Client client = clientOp.get();
+		Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+		client.getRoles().forEach(role -> {
+			authorities.add(new SimpleGrantedAuthority(role.getName()));
+		});
+		
+		return new User(client.getUsername(), client.getPassword(), authorities);
 	}
 	
 	public Client getClient(String username) {
 		return clientRepository.findByUsername(username).orElseThrow();
-	}
-	
-	public Client addNewClient(Client client) {
-		if (clientRepository.findByUsername(client.getUsername()).isPresent()) {
-			throw new IllegalStateException("Username is already taken");
-		}
-		
-		if (clientRepository.findByEmail(client.getEmail()).isPresent()) {
-			throw new IllegalStateException("Email is already taken");
-		}
-		
-		client.setPassword(passwordEncoder.encode(client.getPassword()));
-		return clientRepository.save(client);
 	}
 	
 	public Client addNewClient(ClientRegisterDto clientRegisterDto) {
@@ -82,14 +78,6 @@ public class ClientService implements UserDetailsService{
 				.orElseThrow(() -> new IllegalStateException("There is no role: ROLE_CLIENT")));
 		
 		return clientRepository.save(registrationClient);
-	}
-
-	public void deleteClient(Long clientId) {
-		if (!clientRepository.existsById(clientId)) {
-			throw new IllegalStateException("Client with id " + clientId + " does not exists");
-		}
-		
-		clientRepository.deleteById(clientId);
 	}
 
 	@Transactional
@@ -153,8 +141,7 @@ public class ClientService implements UserDetailsService{
 		ShoppingList listToUpdate = clientRepository.findByUsername(username)
 				.orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found!"))
 				.getShopLists().stream()
-				.filter(id -> id.getId()
-				.equals(listId))
+				.filter(id -> id.getId().equals(listId))
 				.findFirst()
 				.orElseThrow(() -> new IllegalStateException("List with id=" + listId + " not found!"));
 		
@@ -171,86 +158,6 @@ public class ClientService implements UserDetailsService{
 			return "Shopping list with id: " + listId + " was deleted";
 		else
 			return "There is no shopping list with id: " + listId;
-	}
-	
-//	Roles
-	
-	public List<Role> getRoles() {
-		return roleRepository.findAll();
-	}
-	
-	public Role saveRole(Role role) {
-		boolean isRolePresent = roleRepository.findByName(role.getName()).isPresent();
-		
-		if(isRolePresent) {
-			throw new IllegalStateException("Role is already esxists");
-		}
-		
-		return roleRepository.save(role);
-	}
-	
-	public void deleteRole(Long roleId) {
-		if (!roleRepository.existsById(roleId)) {
-			throw new IllegalStateException("Role not found");
-		}
-		
-		roleRepository.deleteById(roleId);
-	}
-		
-	@Transactional
-	public Client addRoleToClient(Long clientId, Long roleId) {
-		Optional<Client> clientToBeUpdated = clientRepository.findById(clientId);
-		Optional<Role> roleToBeAdded = roleRepository.findById(roleId);
-		
-		if (clientToBeUpdated.isEmpty()) {
-			throw new IllegalStateException("Client not found");
-		}
-		
-		if (roleToBeAdded.isEmpty()) {
-			throw new IllegalStateException("Role not found");
-		}
-		
-		Collection<Role> clientRoles = clientToBeUpdated.get().getRoles();
-		Role role = roleToBeAdded.get();
-		
-		if (clientRoles.contains(role)) {
-			throw new IllegalStateException("Client already has role: " + role.getName());
-		}
-		
-		clientRoles.add(role);
-		
-		return clientToBeUpdated.get();
-	}
-	
-	@Transactional
-	public Client removeRoleFromClient(Long clientId, Long roleId) {
-		Optional<Client> clientToBeUpdated = clientRepository.findById(clientId);
-		
-		if (clientToBeUpdated.isEmpty()) {
-			throw new IllegalStateException("Client not found");
-		}
-		
-		Client client = clientToBeUpdated.get();
-		client.getRoles().removeIf(role -> role.getId().equals(roleId));
-		
-		return client;
-	}
-
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Optional<Client> clientOp = clientRepository.findByUsername(username);
-		
-		if (clientOp.isEmpty()) {
-			throw new UsernameNotFoundException("Username " + username + " not found!");
-		}
-		
-		Client client = clientOp.get();
-		Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-		client.getRoles().forEach(role -> {
-			authorities.add(new SimpleGrantedAuthority(role.getName()));
-		});
-		
-		return new User(client.getUsername(), client.getPassword(), authorities);
 	}
 
 }

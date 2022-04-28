@@ -17,30 +17,37 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import ru.treshchilin.OhMyGroc.model.Client;
 import ru.treshchilin.OhMyGroc.model.Role;
-import ru.treshchilin.OhMyGroc.service.ClientService;
+import ru.treshchilin.OhMyGroc.service.AdminClientService;
 
 @RestController
 @RequestMapping("/api/v2/admin")
 public class AdminRestContorller {
 
-	private final ClientService clientService;
+	private final AdminClientService adminService;
 
 	@Autowired
-	public AdminRestContorller(ClientService clientService) {
-		this.clientService = clientService;
+	public AdminRestContorller(AdminClientService adminService) {
+		this.adminService = adminService;
 	}
 	
 	// Clients
 	
 	@GetMapping("/clients")
 	public ResponseEntity<List<Client>> getClients() {
-		return ResponseEntity.ok().body(clientService.getClients());
+		return ResponseEntity.ok().body(adminService.getClients());
 	}
 	
 	@GetMapping("/clients/{clientId}")
 	public ResponseEntity<Client> getClient(
 			@PathVariable(name = "clietnId", required = true) Long clientId) {
-		return ResponseEntity.ok().body(clientService.getClient(clientId));
+		return ResponseEntity.ok().body(adminService.getClientById(clientId));
+	}
+	
+	@DeleteMapping("/clients/{clientId}")
+	public ResponseEntity<?> deleteClient(
+			@PathVariable(name = "clientId", required = true) Long clientId) {
+		adminService.deleteClient(clientId);
+		return ResponseEntity.ok().build();
 	}
 	
 //	@PostMapping("/clients")
@@ -49,37 +56,39 @@ public class AdminRestContorller {
 //		return ResponseEntity.created(uri).body(clientService.addNewClient(client));
 //	}
 	
+//	Roles
+	
 	@PutMapping("/clients/{clientId}/roles/add/{roleId}")
 	public ResponseEntity<Client> addRoleToClient(
 			@PathVariable(name = "clientId", required = true) Long clientId,
 			@PathVariable(name = "roleId", required = true) Long roleId) {
-		return ResponseEntity.ok().body(clientService.addRoleToClient(clientId, roleId));
+		return ResponseEntity.ok().body(adminService.addRoleToClient(clientId, roleId));
 	}
 	
 	@PutMapping("/clients/{clientId}/roles/remove/{roleId}")
 	public ResponseEntity<Client> removeRoleFromClient(
 			@PathVariable(name = "clientId", required = true) Long clientId,
 			@PathVariable(name = "roleId", required = true) Long roleId) {
-		return ResponseEntity.ok().body(clientService.removeRoleFromClient(clientId, roleId));
+		return ResponseEntity.ok().body(adminService.removeRoleFromClient(clientId, roleId));
 	}
 		
 	// Roles
 	
 	@GetMapping("/roles")
 	public ResponseEntity<List<Role>> getRoles(){
-		return ResponseEntity.ok().body(clientService.getRoles());
+		return ResponseEntity.ok().body(adminService.getRoles());
 	}
 	
 	@PostMapping("/roles")
 	public ResponseEntity<Role> saveRole(@RequestBody Role role){
 		URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v2/admin/role").toUriString());
-		return ResponseEntity.created(uri).body(clientService.saveRole(role));
+		return ResponseEntity.created(uri).body(adminService.saveRole(role));
 	}
 	
 	@DeleteMapping("/roles/{id}")
 	public ResponseEntity<?> deleteRole(
 			@PathVariable(name = "id", required = true) Long roleId) {
-		clientService.deleteRole(roleId);
+		adminService.deleteRole(roleId);
 		return ResponseEntity.ok().body("Role deleted");
 	}
 }
