@@ -30,7 +30,7 @@ public class ShoppingList {
 	@JoinColumn(
 			name = "client_id",
 			nullable = false)
-	private Client client;
+	private Client owner;
 	
 	@Column(name = "date_created")
 	private LocalDateTime dateCreated;
@@ -57,11 +57,11 @@ public class ShoppingList {
 	}
 	
 	public Client getClient() {
-		return client;
+		return owner;
 	}
 
 	public void setClient(Client client) {
-		this.client = client;
+		this.owner = client;
 	}
 
 	public LocalDateTime getDateCreated() {
