@@ -32,32 +32,36 @@ public class AdminRestContorller {
 	
 	// Clients
 	
+	/*
+	 * Get list of all clients
+	 */
 	@GetMapping("/clients")
 	public ResponseEntity<List<Client>> getClients() {
 		return ResponseEntity.ok().body(adminService.getClients());
 	}
 	
+	/*
+	 * Get client by id
+	 */
 	@GetMapping("/clients/{clientId}")
 	public ResponseEntity<Client> getClient(
 			@PathVariable(name = "clietnId", required = true) Long clientId) {
 		return ResponseEntity.ok().body(adminService.getClientById(clientId));
 	}
 	
+	/*
+	 * Delete client by id
+	 */
 	@DeleteMapping("/clients/{clientId}")
 	public ResponseEntity<?> deleteClient(
 			@PathVariable(name = "clientId", required = true) Long clientId) {
 		adminService.deleteClient(clientId);
 		return ResponseEntity.ok().build();
 	}
-	
-//	@PostMapping("/clients")
-//	public ResponseEntity<Client> saveClient(@RequestBody Client client) {
-//		URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v2/admin/clients").toUriString());
-//		return ResponseEntity.created(uri).body(clientService.addNewClient(client));
-//	}
-	
-//	Roles
-	
+		
+	/*
+	 * Add new role to client's role list
+	 */
 	@PutMapping("/clients/{clientId}/roles/add/{roleId}")
 	public ResponseEntity<Client> addRoleToClient(
 			@PathVariable(name = "clientId", required = true) Long clientId,
@@ -65,6 +69,9 @@ public class AdminRestContorller {
 		return ResponseEntity.ok().body(adminService.addRoleToClient(clientId, roleId));
 	}
 	
+	/*
+	 * Remove role from client's role list
+	 */
 	@PutMapping("/clients/{clientId}/roles/remove/{roleId}")
 	public ResponseEntity<Client> removeRoleFromClient(
 			@PathVariable(name = "clientId", required = true) Long clientId,
@@ -74,17 +81,26 @@ public class AdminRestContorller {
 		
 	// Roles
 	
+	/*
+	 * Get list of all roles
+	 */
 	@GetMapping("/roles")
 	public ResponseEntity<List<Role>> getRoles(){
 		return ResponseEntity.ok().body(adminService.getRoles());
 	}
 	
+	/*
+	 * Create new role
+	 */
 	@PostMapping("/roles")
 	public ResponseEntity<Role> saveRole(@RequestBody Role role){
 		URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v2/admin/role").toUriString());
 		return ResponseEntity.created(uri).body(adminService.saveRole(role));
 	}
 	
+	/*
+	 * Delete existing role
+	 */
 	@DeleteMapping("/roles/{id}")
 	public ResponseEntity<?> deleteRole(
 			@PathVariable(name = "id", required = true) Long roleId) {

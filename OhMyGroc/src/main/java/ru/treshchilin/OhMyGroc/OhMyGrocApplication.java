@@ -7,8 +7,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import ru.treshchilin.OhMyGroc.model.Client;
+import ru.treshchilin.OhMyGroc.dto.ClientRegisterDto;
 import ru.treshchilin.OhMyGroc.model.Role;
+import ru.treshchilin.OhMyGroc.service.AdminClientService;
 import ru.treshchilin.OhMyGroc.service.ClientService;
 
 @SpringBootApplication
@@ -19,16 +20,16 @@ public class OhMyGrocApplication {
 	}
 	
 	@Bean
-	CommandLineRunner run(ClientService clientService) {
+	CommandLineRunner run(ClientService clientService, AdminClientService adminClientService) {
 		return args -> {
-			clientService.saveRole(new Role(null, "ROLE_ADMIN"));
-			clientService.saveRole(new Role(null, "ROLE_CLIENT"));
+			adminClientService.saveRole(new Role(null, "ROLE_ADMIN"));
+			adminClientService.saveRole(new Role(null, "ROLE_CLIENT"));
 			
-			clientService.addNewClient(new Client("admin_1@test.com", "admin", "admin"));
-			clientService.addNewClient(new Client("client_1@test.com", "client1", "password"));
+			clientService.addNewClient(new ClientRegisterDto("admin_1@test.com", "admin", "admin"));
+			clientService.addNewClient(new ClientRegisterDto("client_1@test.com", "client1", "password"));
 			
-			clientService.addRoleToClient(1L, 1L);
-			clientService.addRoleToClient(2L, 2L);
+			adminClientService.addRoleToClient(1L, 1L);
+			adminClientService.addRoleToClient(2L, 2L);
 		};
 	}
 	
