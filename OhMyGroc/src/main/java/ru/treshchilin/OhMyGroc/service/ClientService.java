@@ -52,7 +52,8 @@ public class ClientService implements UserDetailsService{
 	}
 	
 	public Client getClient(String username) {
-		return clientRepository.findByUsername(username).orElseThrow();
+		return clientRepository.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found!"));
 	}
 	
 	public Client addNewClient(ClientRegisterDto clientRegisterDto) {

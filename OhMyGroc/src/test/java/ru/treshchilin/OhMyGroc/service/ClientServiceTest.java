@@ -2,164 +2,149 @@ package ru.treshchilin.OhMyGroc.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atMostOnce;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import ru.treshchilin.OhMyGroc.dto.ClientRegisterDto;
 import ru.treshchilin.OhMyGroc.model.Client;
-import ru.treshchilin.OhMyGroc.model.ShoppingList;
+import ru.treshchilin.OhMyGroc.model.Role;
 import ru.treshchilin.OhMyGroc.repo.ClientRepository;
+import ru.treshchilin.OhMyGroc.repo.RoleRepository;
 
 @ExtendWith(MockitoExtension.class)
-class ClientServiceTest {
+public class ClientServiceTest {
 
 	@Mock
 	private ClientRepository clientRepository;
+	
+	@Mock
+	private RoleRepository roleRepository;
+	
+	@Mock
+	private PasswordEncoder passwordEncoder;
+	
 	@InjectMocks
 	private ClientService underTest;
 
-	@Test
-	void testGetClients() {
-		List<Client> clients = List.of(
-				new Client(1L, "test1@test.com", "Test1", Collections.emptyList()),
-				new Client(2L, "test2@test.com", "Test2", Collections.emptyList()),
-				new Client(3L, "test3@test.com", "Test3", Collections.emptyList()));
-		when(clientRepository.findAll()).thenReturn(clients);
+	@ParameterizedTest
+	@MethodSource("existingClientsDataSource")
+	void getClientIfExists(String username, Client client) {
+		when(clientRepository.findByUsername(client.getUsername())).thenReturn(Optional.of(client));
 		
-		List<Client> gotClients = underTest.getClients();
+		Client gotClient = underTest.getClient(username);
 		
-		assertThat(gotClients).isEqualTo(clients);
-		verify(clientRepository).findAll();
+		verify(clientRepository, atMostOnce()).findByUsername(username);
+		assertThat(gotClient).isEqualTo(client);
+	}
+	
+	@ParameterizedTest
+	@ValueSource(strings = {"username", "notusername", "not a username"})
+	void getClientIfNotExists(String username) {
+		when(clientRepository.findByUsername(any())).thenReturn(Optional.empty());
+		
+		Exception ex = assertThrows(UsernameNotFoundException.class, () -> underTest.getClient(username));
+		
+		assertThat(ex.getMessage()).contains("Username",  username, "not found");
+	}
+	
+	@ParameterizedTest
+	@EmptySource
+	@ValueSource(strings = {"\t", "\n", "  "})
+	void getClientIfUsernameIsBlank(String username) {
+		when(clientRepository.findByUsername(any())).thenReturn(Optional.empty());
+		
+		Exception ex = assertThrows(UsernameNotFoundException.class, () -> underTest.getClient(username));
+		
+		assertThat(ex.getMessage()).contains("Username",  username, "not found");
+	}
+	
+	private static Stream<Arguments> existingClientsDataSource() {
+		return Stream.of(
+				Arguments.of("client", new Client(1L, "client@test.com", "client", "password", List.of(), List.of(new Role(1L, "ROLE_CLIENT")))),
+				Arguments.of("admin", new Client(1L, "admin@test.com", "admin", "password", List.of(), List.of(new Role(2L, "ROLE_ADMIN")))));
+	}
+	
+	@ParameterizedTest
+	@MethodSource("newClientsDataSource")
+	void addNewClientWithCorrectData(ClientRegisterDto clientRegisterDto) {
+		when(clientRepository.findByUsername(any())).thenReturn(Optional.empty());
+		when(clientRepository.findByEmail(any())).thenReturn(Optional.empty());
+		when(roleRepository.findByName(any())).thenReturn(Optional.of(new Role(2L, "ROLE_CLIENT")));
+		
+		underTest.addNewClient(clientRegisterDto);
+		
+		ArgumentCaptor<Client> registerClientCaptor = ArgumentCaptor.forClass(Client.class);
+		verify(clientRepository, atMostOnce()).save(registerClientCaptor.capture());
+		Client clientToSave = registerClientCaptor.getValue();
+		
+		assertThat(clientToSave.getEmail()).isEqualTo(clientRegisterDto.getEmail());
+		assertThat(clientToSave.getUsername()).isEqualTo(clientRegisterDto.getUsername());
+//		TODO here need to check if the password encoded correctly
+		assertThat(clientToSave.getRoles().size()).isEqualTo(1);
+		clientToSave.getRoles().forEach(r -> assertThat(r.getName()).isEqualTo("ROLE_CLIENT"));
 	}
 	
 	@Test
-	void getClient() {
-		Client client = new Client(1L, "test@test.com", "Test", Collections.emptyList());
-		when(clientRepository.findById(client.getId())).thenReturn(Optional.of(client));
+	void addnewClientIfUsernameExists() {
+		when(clientRepository.findByUsername(any())).thenReturn(Optional.of(new Client()));
 		
-		Client gotClient = underTest.getClient(client.getId());
+		Exception ex = assertThrows(
+				IllegalStateException.class, 
+				() -> underTest.addNewClient(new ClientRegisterDto("email@text.com", "existedUsername", "password")));
 		
-		assertThat(gotClient).isEqualTo(gotClient);
-		verify(clientRepository, atMostOnce()).getById(client.getId());
-	}
-
-	@Test
-	void testAddNewClientIfEmailIsFree() {
-		Client client = new Client("test@test.com", "Test");
-		
-		underTest.addNewClient(client);
-		
-		ArgumentCaptor<Client> clientArgumentCaptor = ArgumentCaptor.forClass(Client.class);
-		verify(clientRepository).save(clientArgumentCaptor.capture());
-		Client capturedClient = clientArgumentCaptor.getValue();
-		
-		assertThat(capturedClient).isEqualTo(client);
+		assertThat(ex.getMessage()).contains("Username is already taken");
 	}
 	
 	@Test
-	void testAddNewClientIfEmailIsOccupied() {
-		Client client = new Client("test@test.com", "Test");
-		when(clientRepository.findByEmail(client.getEmail())).thenReturn(List.of(client));
+	void addNewClientIfEmailExists() {
+		when(clientRepository.findByUsername(any())).thenReturn(Optional.empty());
+		when(clientRepository.findByEmail(any())).thenReturn(Optional.of(new Client()));
 		
-		assertThrows(IllegalStateException.class, () -> {
-			underTest.addNewClient(client);
-		});
+		Exception ex = assertThrows(
+				IllegalStateException.class, 
+				() -> underTest.addNewClient(new ClientRegisterDto("email@text.com", "existedUsername", "password")));
 		
-		verify(clientRepository, never()).save(client);
+		assertThat(ex.getMessage()).contains("Email is already taken");
 	}
-
-	@Test
-	void testDeleteClientIfExists() {
-		Long clientId = 1L;
-		when(clientRepository.existsById(clientId)).thenReturn(true);
-		
-		underTest.deleteClient(clientId);
-		
-		verify(clientRepository).deleteById(clientId);
+	
+	private static Stream<ClientRegisterDto> newClientsDataSource() {
+		return Stream.of(
+						new ClientRegisterDto("client1@test.com", "client1", "password1"), 
+						new ClientRegisterDto("client2@test.com", "client2", "password2"), 
+						new ClientRegisterDto("client3@test.com", "client3", "password3") 
+				);
 	}
 	
 	@Test
-	void testDeleteClientIfDoesNotExists() {
-		Long clientId = 1L;
-		when(clientRepository.existsById(clientId)).thenReturn(false);
+	void updateClientEmail() {
+		Client client = new Client(1L, "client1@mail.com", "client1", "password1", List.of(), List.of(new Role(2L, "ROLE_CLIENT")));
+		String newEmail = "updated@mail.com";
+		when(clientRepository.findByUsername(client.getUsername())).thenReturn(Optional.of(client));
 		
+		Client updatedClient = underTest.updateClient(client.getUsername(), newEmail, null, null);
 		
-		assertThrows(IllegalStateException.class, () -> {
-			underTest.deleteClient(clientId);
-		});
-		
-		verify(clientRepository, never()).deleteById(clientId);
-	}
-
-	@Test
-	void testUpdateClientIfIdNotFound() {
-		Client client = new Client(1L, "test@test.com", "Test1", Collections.emptyList());
-		when(clientRepository.findById(client.getId())).thenReturn(Optional.empty());
-		
-		assertThrows(IllegalStateException.class, () -> {
-			underTest.updateClient(client.getId(), client.getEmail(), client.getUsername());
-		});
+		assertThat(updatedClient.getEmail()).isEqualTo(newEmail);
+		assertThat(updatedClient).isEqualTo(client);
 	}
 	
-	@Test
-	void testUpdateClientIfIdIsFoundAndEmailIsOccupied() {
-		Client client = new Client(1L, "test@test.com", "Test1", Collections.emptyList());
-		String newEmail = "new@test.com";
-		when(clientRepository.findById(client.getId())).thenReturn(Optional.of(client));
-		when(clientRepository.findByEmail(newEmail)).thenReturn(List.of(new Client()));
-		
-		assertThrows(IllegalStateException.class, () -> {
-			underTest.updateClient(client.getId(), null, newEmail);
-		});
-	}
-	
-	@Test
-	void testUpdateClientName() {
-		Client client = new Client(1L, "test@test.com", "Test1", Collections.emptyList());
-		String newName = "Test2";
-		when(clientRepository.findById(client.getId())).thenReturn(Optional.of(client));
-		
-		underTest.updateClient(client.getId(), newName, null);
-		
-		assertThat(client.getUsername()).isEqualTo(newName);
-	}
-	
-	@Test
-	void testUpdateClientEmail() {
-		Client client = new Client(1L, "test@test.com", "Test1", Collections.emptyList());
-		String newEmail = "test2@test.com";
-		when(clientRepository.findById(client.getId())).thenReturn(Optional.of(client));
-		
-		underTest.updateClient(client.getId(), null, newEmail);
-		
-		assertThat(client.getEmail()).isEqualTo(newEmail);
-	}
-	
-	@Test
-	void addNewClientShoppingList() {
-		Client client = new Client(1L, "test@test.com", "Test1", new ArrayList<ShoppingList>());
-		ShoppingList shoppingList = new ShoppingList(null, null, List.of("Meat", "Milk", "Water", "Bread"));
-		when(clientRepository.findById(client.getId())).thenReturn(Optional.of(client));
-		
-		Client returrnedClient = underTest.addNewClientShoppingList(client.getId(), shoppingList);
-		
-		assertThat(shoppingList.getDateCreated()).isNotNull();
-		assertThat(shoppingList.getClient()).isEqualTo(client);
-		assertThat(returrnedClient).isEqualTo(client);
-		assertThat(client.getShopLists()).contains(shoppingList);
-	}
-
 }
