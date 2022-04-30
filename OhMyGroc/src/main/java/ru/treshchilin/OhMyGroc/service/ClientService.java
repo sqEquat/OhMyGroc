@@ -39,7 +39,7 @@ public class ClientService implements UserDetailsService{
 		Optional<Client> clientOp = clientRepository.findByUsername(username);
 		
 		if (clientOp.isEmpty()) {
-			throw new UsernameNotFoundException("Username " + username + " not found!");
+			throw new UsernameNotFoundException("Username " + username + " not found");
 		}
 		
 		Client client = clientOp.get();
@@ -53,7 +53,7 @@ public class ClientService implements UserDetailsService{
 	
 	public Client getClient(String username) {
 		return clientRepository.findByUsername(username)
-				.orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found!"));
+				.orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found"));
 	}
 	
 	public Client addNewClient(ClientRegisterDto clientRegisterDto) {
@@ -78,11 +78,11 @@ public class ClientService implements UserDetailsService{
 	@Transactional
 	public Client updateClient(String currentUername, String newEmail, String newUsername, String newPassword) {
 		Client client = clientRepository.findByUsername(currentUername)
-				.orElseThrow(() -> new UsernameNotFoundException("Username " + currentUername + " not found!"));
+				.orElseThrow(() -> new UsernameNotFoundException("Username " + currentUername + " not found"));
 
 		if (
 				newEmail != null &&
-				newEmail.length() > 0 &&
+				!newEmail.isBlank() &&
 				!client.getEmail().equals(newEmail) ) {
 			if (clientRepository.findByEmail(newEmail).isPresent()) {
 				throw new IllegalStateException("Email " + newEmail + "is already taken");
@@ -93,7 +93,7 @@ public class ClientService implements UserDetailsService{
 		
 		if (
 				newUsername != null &&
-				newUsername.length() > 0 &&
+				!newUsername.isBlank() &&
 				!client.getUsername().equals(newUsername) ) {
 			if (clientRepository.findByUsername(newUsername).isPresent()) {
 				throw new IllegalStateException("Username " + newUsername + "is already taken");
@@ -104,7 +104,7 @@ public class ClientService implements UserDetailsService{
 		
 		if (
 				newPassword != null &&
-				newPassword.length() > 0 ) {
+				!newPassword.isBlank() ) {
 			client.setPassword(passwordEncoder.encode(newPassword));
 		}
 		
