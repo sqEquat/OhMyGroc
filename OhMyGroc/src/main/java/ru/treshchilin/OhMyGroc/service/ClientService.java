@@ -2,7 +2,6 @@ package ru.treshchilin.OhMyGroc.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -36,13 +35,9 @@ public class ClientService implements UserDetailsService{
 	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Optional<Client> clientOp = clientRepository.findByUsername(username);
-		
-		if (clientOp.isEmpty()) {
-			throw new UsernameNotFoundException("Username " + username + " not found");
-		}
-		
-		Client client = clientOp.get();
+		Client client = clientRepository.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found"));
+				
 		Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
 		client.getRoles().forEach(role -> {
 			authorities.add(new SimpleGrantedAuthority(role.getName()));

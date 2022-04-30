@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atMostOnce;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,6 +24,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -47,6 +49,39 @@ public class ClientServiceTest {
 	@InjectMocks
 	private ClientService underTest;
 
+	
+//	loadUserByUsername
+	
+	@Test
+	void loadUserByUsernameIfUserExists() {
+		Client client = new Client(1L, "client1@mail.com", "client1", "password1", List.of(), List.of(new Role(1L, "ROLE_ADMIN")));
+		
+		when(clientRepository.findByUsername(client.getUsername())).thenReturn(Optional.of(client));
+		
+		UserDetails user = underTest.loadUserByUsername(client.getUsername());
+		
+		verify(clientRepository, atMostOnce()).findByUsername(client.getUsername());
+		assertThat(user.getUsername()).isEqualTo(client.getUsername());
+		assertThat(user.getPassword()).isEqualTo(client.getPassword());
+		assertThat(user.getAuthorities()).hasSize(1);
+		user.getAuthorities().forEach(r -> assertThat(r.getAuthority()).isEqualTo("ROLE_ADMIN"));
+	}
+	
+	@Test
+	void loadUserByUsernameIfUserNotExists() {
+		String username = "user";
+		
+		when(clientRepository.findByUsername(any())).thenReturn(Optional.empty());
+		
+		Exception  ex = assertThrows(
+				UsernameNotFoundException.class,
+				() -> underTest.loadUserByUsername(username)
+				);
+		
+		verify(clientRepository, atMostOnce()).findByUsername(username);
+		assertThat(ex.getMessage()).contains("Username", username, "not found");
+	}
+	
 //	getClient
 	
 	@ParameterizedTest
@@ -61,23 +96,14 @@ public class ClientServiceTest {
 	}
 	
 	@ParameterizedTest
-	@ValueSource(strings = {"username", "notusername", "not a username"})
+	@EmptySource
+	@ValueSource(strings = {" ", "\n", "\t", "username", "notusername", "not a username"})
 	void getClientIfNotExists(String username) {
 		when(clientRepository.findByUsername(any())).thenReturn(Optional.empty());
 		
 		Exception ex = assertThrows(UsernameNotFoundException.class, () -> underTest.getClient(username));
 		
-		assertThat(ex.getMessage()).contains("Username",  username, "not found");
-	}
-	
-	@ParameterizedTest
-	@EmptySource
-	@ValueSource(strings = {"\t", "\n", "  "})
-	void getClientIfUsernameIsBlank(String username) {
-		when(clientRepository.findByUsername(any())).thenReturn(Optional.empty());
-		
-		Exception ex = assertThrows(UsernameNotFoundException.class, () -> underTest.getClient(username));
-		
+		verify(clientRepository, atMostOnce()).findByUsername(username);
 		assertThat(ex.getMessage()).contains("Username",  username, "not found");
 	}
 	
@@ -117,6 +143,7 @@ public class ClientServiceTest {
 				IllegalStateException.class, 
 				() -> underTest.addNewClient(new ClientRegisterDto("email@text.com", "existedUsername", "password")));
 		
+		verify(clientRepository, never()).save(any());
 		assertThat(ex.getMessage()).contains("Username is already taken");
 	}
 	
@@ -129,6 +156,7 @@ public class ClientServiceTest {
 				IllegalStateException.class, 
 				() -> underTest.addNewClient(new ClientRegisterDto("email@text.com", "existedUsername", "password")));
 		
+		verify(clientRepository, never()).save(any());
 		assertThat(ex.getMessage()).contains("Email is already taken");
 	}
 	
