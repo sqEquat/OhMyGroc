@@ -35,7 +35,7 @@ public class AdminClientService {
 	
 	public void deleteClient(Long clientId) {
 		if (!clientRepository.existsById(clientId)) {
-			throw new IllegalStateException("Client with id " + clientId + " does not exists");
+			throw new IllegalStateException("Client with id " + clientId + " does not exist");
 		}
 		
 		clientRepository.deleteById(clientId);
@@ -45,11 +45,9 @@ public class AdminClientService {
 		return roleRepository.findAll();
 	}
 	
-	public Role saveRole(Role role) {
-		boolean isRolePresent = roleRepository.findByName(role.getName()).isPresent();
-		
-		if(isRolePresent) {
-			throw new IllegalStateException("Role is already esxists");
+	public Role saveRole(Role role) {		
+		if(roleRepository.findByName(role.getName()).isPresent()) {
+			throw new IllegalStateException("Role already esxists");
 		}
 		
 		return roleRepository.save(role);
