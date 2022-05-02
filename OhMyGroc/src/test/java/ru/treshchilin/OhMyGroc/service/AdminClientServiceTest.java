@@ -21,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import ru.treshchilin.OhMyGroc.exception.IdNotFoundException;
 import ru.treshchilin.OhMyGroc.model.Client;
 import ru.treshchilin.OhMyGroc.model.Role;
 import ru.treshchilin.OhMyGroc.repo.ClientRepository;
@@ -74,12 +75,12 @@ public class AdminClientServiceTest {
 		when(clientRepository.findById(anyLong())).thenReturn(Optional.empty());
 		
 		Exception ex = assertThrows(
-				IllegalStateException.class,
+				IdNotFoundException.class,
 				() -> underTest.getClientById(anyLong())
 				);
 		
 		verify(clientRepository, atMostOnce()).findById(anyLong());
-		assertThat(ex.getMessage()).contains("No client with id:");
+		assertThat(ex.getMessage()).contains("Client with id", "not found");
 	}
 	
 //	deleteClient
@@ -100,12 +101,12 @@ public class AdminClientServiceTest {
 		when(clientRepository.existsById(anyLong())).thenReturn(false);
 		
 		Exception ex = assertThrows(
-				IllegalStateException.class,
+				IdNotFoundException.class,
 				() -> underTest.deleteClient(anyLong())
 				);
 		
 		verify(clientRepository, never()).deleteById(anyLong());
-		assertThat(ex.getMessage()).contains("Client with id", "does not exist");
+		assertThat(ex.getMessage()).contains("Client with id", "not found");
 	}
 	
 //	getRoles
@@ -156,7 +157,7 @@ public class AdminClientServiceTest {
 //	deleteRole
 	
 	@Test
-	void deleteClientIfExists() {
+	void deleteRoleIfExists() {
 		Long roleId = 2L;
 		ArgumentCaptor<Long> longArgumentCaptor = ArgumentCaptor.forClass(Long.class);
 		
@@ -169,18 +170,18 @@ public class AdminClientServiceTest {
 	}
 	
 	@Test
-	void deleteClientIfNotExists() {
+	void deleteRoleIfIdNotFound() {
 		Long roleId = 2L;
 		
 		when(roleRepository.existsById(roleId)).thenReturn(false);
 		
 		Exception ex = assertThrows(
-				IllegalStateException.class,
+				IdNotFoundException.class,
 				() -> underTest.deleteRole(roleId)
 				);
 		
 		verify(roleRepository, never()).save(any());
-		assertThat(ex.getMessage()).contains("Role not found");
+		assertThat(ex.getMessage()).contains("Role with id", "not found");
 	}
 	
 //	addRoleToClient
@@ -213,11 +214,11 @@ public class AdminClientServiceTest {
 		when(roleRepository.findById(role.getId())).thenReturn(Optional.of(role));
 		
 		Exception ex = assertThrows(
-				IllegalStateException.class,
+				IdNotFoundException.class,
 				() -> underTest.addRoleToClient(anyLong(), role.getId())
 				);
 		
-		assertThat(ex.getMessage()).contains("Client not found");
+		assertThat(ex.getMessage()).contains("Client with id", "not found");
 	}
 	
 	@Test
@@ -228,11 +229,11 @@ public class AdminClientServiceTest {
 		when(roleRepository.findById(anyLong())).thenReturn(Optional.empty());
 		
 		Exception ex = assertThrows(
-				IllegalStateException.class,
+				IdNotFoundException.class,
 				() -> underTest.addRoleToClient(client.getId(), anyLong())
 				);
 		
-		assertThat(ex.getMessage()).contains("Role not found");
+		assertThat(ex.getMessage()).contains("Role with id", "not found");
 	}
 	
 	@Test
@@ -286,11 +287,11 @@ public class AdminClientServiceTest {
 		when(clientRepository.findById(anyLong())).thenReturn(Optional.empty());
 		
 		Exception ex = assertThrows(
-				IllegalStateException.class,
+				IdNotFoundException.class,
 				() -> underTest.removeRoleFromClient(anyLong(), role.getId())
 				);
 		
-		assertThat(ex.getMessage()).contains("Client not found");
+		assertThat(ex.getMessage()).contains("Client with id", "not found");
 	}
 	
 	@Test

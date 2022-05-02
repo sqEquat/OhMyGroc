@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ru.treshchilin.OhMyGroc.exception.IdNotFoundException;
 import ru.treshchilin.OhMyGroc.model.Client;
 import ru.treshchilin.OhMyGroc.model.Role;
 import ru.treshchilin.OhMyGroc.repo.ClientRepository;
@@ -30,12 +31,12 @@ public class AdminClientService {
 	}
 	
 	public Client getClientById(Long id) {
-		return clientRepository.findById(id).orElseThrow(() -> new IllegalStateException("No client with id: " + id));
+		return clientRepository.findById(id).orElseThrow(() -> new IdNotFoundException("Client with id= " + id + " not found"));
 	}
 	
 	public void deleteClient(Long clientId) {
 		if (!clientRepository.existsById(clientId)) {
-			throw new IllegalStateException("Client with id " + clientId + " does not exist");
+			throw new IdNotFoundException("Client with id= " + clientId + " not found");
 		}
 		
 		clientRepository.deleteById(clientId);
@@ -55,7 +56,7 @@ public class AdminClientService {
 	
 	public void deleteRole(Long roleId) {
 		if (!roleRepository.existsById(roleId)) {
-			throw new IllegalStateException("Role not found");
+			throw new IdNotFoundException("Role with id= " + roleId + " not found");
 		}
 		
 		roleRepository.deleteById(roleId);
@@ -67,11 +68,11 @@ public class AdminClientService {
 		Optional<Role> roleToBeAdded = roleRepository.findById(roleId);
 		
 		if (clientToBeUpdated.isEmpty()) {
-			throw new IllegalStateException("Client not found");
+			throw new IdNotFoundException("Client with id= " + clientId + " not found");
 		}
 		
 		if (roleToBeAdded.isEmpty()) {
-			throw new IllegalStateException("Role not found");
+			throw new IdNotFoundException("Role with id= " + roleId + " not found");
 		}
 		
 		Collection<Role> clientRoles = clientToBeUpdated.get().getRoles();
@@ -91,7 +92,7 @@ public class AdminClientService {
 		Optional<Client> clientToBeUpdated = clientRepository.findById(clientId);
 		
 		if (clientToBeUpdated.isEmpty()) {
-			throw new IllegalStateException("Client not found");
+			throw new IdNotFoundException("Client with id= " + clientId + " not found");
 		}
 		
 		Client client = clientToBeUpdated.get();
