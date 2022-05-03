@@ -25,11 +25,10 @@ public class OhMyGrocApplication {
 			adminClientService.saveRole(new Role(null, "ROLE_ADMIN"));
 			adminClientService.saveRole(new Role(null, "ROLE_CLIENT"));
 			
-			clientService.addNewClient(new ClientRegisterDto("admin_1@test.com", "admin", "admin"));
-			clientService.addNewClient(new ClientRegisterDto("client_1@test.com", "client1", "password"));
+			clientService.addNewClient(new ClientRegisterDto("admin@mail.com", "admin", "admin"));
+			clientService.addNewClient(new ClientRegisterDto("client@mail.com", "client", "password"));
 			
 			adminClientService.addRoleToClient(1L, 1L);
-			adminClientService.addRoleToClient(2L, 2L);
 		};
 	}
 	
