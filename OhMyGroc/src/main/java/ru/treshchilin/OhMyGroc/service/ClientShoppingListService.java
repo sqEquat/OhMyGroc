@@ -44,7 +44,7 @@ public class ClientShoppingListService {
 				.orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found"));
 		
 		shoppingList.setDateCreated(LocalDateTime.now());
-		shoppingList.setClient(client);
+		shoppingList.setOwner(client);
 		
 		client.addShoppingList(shoppingList);
 		

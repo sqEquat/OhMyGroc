@@ -3,6 +3,7 @@ package ru.treshchilin.OhMyGroc.model;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -14,8 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity(name = "ShoppingList")
 @Table(name = "shopping_list")
@@ -25,11 +25,13 @@ public class ShoppingList {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@JsonProperty(access = Access.WRITE_ONLY)
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(
+			fetch = FetchType.LAZY,
+			cascade = CascadeType.ALL)
 	@JoinColumn(
-			name = "client_id",
+			name = "client_fk",
 			nullable = false)
+	@JsonBackReference
 	private Client owner;
 	
 	@Column(name = "date_created")
@@ -56,12 +58,12 @@ public class ShoppingList {
 		this.id = id;
 	}
 	
-	public Client getClient() {
+	public Client getOwner() {
 		return owner;
 	}
 
-	public void setClient(Client client) {
-		this.owner = client;
+	public void setOwner(Client owner) {
+		this.owner = owner;
 	}
 
 	public LocalDateTime getDateCreated() {
