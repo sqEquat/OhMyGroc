@@ -26,14 +26,23 @@ public class AdminClientService {
 		this.roleRepository = roleRepository;		
 	}
 	
+	/*
+	 * Get all clients
+	 */
 	public List<Client> getClients() {
 		return clientRepository.findAll();
 	}
 	
+	/*
+	 * Get client with id if exists
+	 */
 	public Client getClientById(Long id) {
 		return clientRepository.findById(id).orElseThrow(() -> new IdNotFoundException("Client with id= " + id + " not found"));
 	}
 	
+	/*
+	 * Delete client by id if exists
+	 */
 	public void deleteClient(Long clientId) {
 		if (!clientRepository.existsById(clientId)) {
 			throw new IdNotFoundException("Client with id= " + clientId + " not found");
@@ -42,10 +51,16 @@ public class AdminClientService {
 		clientRepository.deleteById(clientId);
 	}
 	
+	/*
+	 * Get list of all roles
+	 */
 	public List<Role> getRoles() {
 		return roleRepository.findAll();
 	}
 	
+	/*
+	 * Add new role 
+	 */
 	public Role saveRole(Role role) {		
 		if(roleRepository.findByName(role.getName()).isPresent()) {
 			throw new IllegalStateException("Role already esxists");
@@ -54,6 +69,9 @@ public class AdminClientService {
 		return roleRepository.save(role);
 	}
 	
+	/*
+	 * Delete role by id if exists
+	 */
 	public void deleteRole(Long roleId) {
 		if (!roleRepository.existsById(roleId)) {
 			throw new IdNotFoundException("Role with id= " + roleId + " not found");
@@ -62,6 +80,9 @@ public class AdminClientService {
 		roleRepository.deleteById(roleId);
 	}
 	
+	/*
+	 * Add role with roleId to the client with clientId
+	 */
 	@Transactional
 	public Client addRoleToClient(Long clientId, Long roleId) {
 		Optional<Client> clientToBeUpdated = clientRepository.findById(clientId);
@@ -87,6 +108,9 @@ public class AdminClientService {
 		return clientToBeUpdated.get();
 	}
 	
+	/*
+	 * Remove role with roleId from roles in client with clientId
+	 */
 	@Transactional
 	public Client removeRoleFromClient(Long clientId, Long roleId) {
 		Optional<Client> clientToBeUpdated = clientRepository.findById(clientId);
