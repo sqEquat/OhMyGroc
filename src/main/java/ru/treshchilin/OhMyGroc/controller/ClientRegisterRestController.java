@@ -29,7 +29,7 @@ public class ClientRegisterRestController {
 	
 	@PostMapping
 	public ResponseEntity<Client> registerNewClient(@Valid @RequestBody ClientRegisterDto registerDto) {		
-		URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v2/register").toUriString());
+		URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v2/client").toUriString());
 		return ResponseEntity.created(uri).body(clientService.addNewClient(registerDto));
 	}
 	
