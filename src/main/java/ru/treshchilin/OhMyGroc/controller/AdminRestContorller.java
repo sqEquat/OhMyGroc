@@ -94,7 +94,7 @@ public class AdminRestContorller {
 	 */
 	@PostMapping("/roles")
 	public ResponseEntity<Role> saveRole(@RequestBody Role role){
-		URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v2/admin/role").toUriString());
+		URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v2/admin/roles").toUriString());
 		return ResponseEntity.created(uri).body(adminService.saveRole(role));
 	}
 	
