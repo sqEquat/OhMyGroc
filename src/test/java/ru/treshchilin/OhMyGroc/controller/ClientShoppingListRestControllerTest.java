@@ -86,7 +86,7 @@ class ClientShoppingListRestControllerTest {
 	}
 	
 	@Test
-	void deleteShoppingList_returnSuccessfulMessage_ifPrincipalAndIdExists() {
+	void deleteShoppingList_returnOkSuccessfulMessage_ifPrincipalAndIdExists() {
 		Long listId = 1L;
 		String message = "Shopping list with id: " + listId + " was deleted";
 		when(listService.deleteShoppingList(anyString(), eq(listId))).thenReturn(message);
